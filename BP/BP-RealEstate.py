@@ -6,20 +6,12 @@ import pandas as pd
 
 
 # load the UCL Real Estate Valuation dataset
-ucl_data_path = './Data/UCI_Real_Estate_Valuation.xlsx'
-ucl_data = pd.read_excel(ucl_data_path)
-
-# Drop the 'No' column as it's just an identifier
-ucl_data = ucl_data.drop('No', axis=1)
-
-
-# normalize the data using Min-Max scaling
-min_max_scaler = MinMaxScaler()
-ucl_data_normalized = pd.DataFrame(min_max_scaler.fit_transform(ucl_data), columns=ucl_data.columns)
+normalized_data_path = 'Normalization/UCI_Real_Estate_normalized.csv'
+normalized_data = pd.read_csv(normalized_data_path)
 
 # extract features (X) and target variable (y)
-X = ucl_data_normalized.drop('Y house price of unit area', axis=1).values
-y = ucl_data_normalized['Y house price of unit area'].values
+X = normalized_data.drop('Y house price of unit area', axis=1).values
+y = normalized_data['Y house price of unit area'].values
 
 num_input_features = X.shape[1]
 print(f"Number of input features: {num_input_features}")
@@ -148,8 +140,6 @@ class MyNeuralNetwork:
         mask = actual != 0
         return np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100
 
-
-
   def fit(self, input_data, target_data, total_epochs, batch_size=32, decay_rate=0.1):
     # Split data into training and test parts
     train_inputs, test_inputs, train_targets, test_targets = train_test_split(input_data, target_data, test_size=self.validation_percentage, shuffle=True, random_state=42)
@@ -244,7 +234,7 @@ class MyNeuralNetwork:
 
 
 # Define neural network parameters with two hidden layers
-layers = [6, 10, 5, 1]  # Example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
+layers = [7, 10, 5, 1]  # Example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
 learning_rate = 0.01
 momentum = 0.9
 activation = 'sigmoid'
