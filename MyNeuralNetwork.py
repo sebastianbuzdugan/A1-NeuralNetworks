@@ -6,8 +6,8 @@ import pandas as pd
 
 
 # load the UCL Real Estate Valuation dataset
-ucl_data_path = './Data/UCI_Real_Estate_Valuation.xlsx'
-ucl_data = pd.read_excel(ucl_data_path)
+ucl_data_path = './Normalization/UCI_Real_Estate_normalized.csv'
+ucl_data = pd.read_csv(ucl_data_path)
 
 # Drop the 'No' column as it's just an identifier
 ucl_data = ucl_data.drop('No', axis=1)

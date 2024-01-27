@@ -6,24 +6,15 @@ import pandas as pd
 
 
 # load the UCL Real Estate Valuation dataset
-ucl_data_path = '../Data/UCI_Real_Estate_Valuation.xlsx'
-ucl_data = pd.read_excel(ucl_data_path)
-
-# Drop the 'No' column as it's just an identifier
-ucl_data = ucl_data.drop('No', axis=1)
+data_path = './Normalization/A1-synthetic-normalized.csv'
+data = pd.read_csv(data_path, sep='\t')
 
 
-# normalize the data using Min-Max scaling
-min_max_scaler = MinMaxScaler()
-ucl_data_normalized = pd.DataFrame(min_max_scaler.fit_transform(ucl_data), columns=ucl_data.columns)
+print("Column names:", data.columns)
 
 # extract features (X) and target variable (y)
-X = ucl_data_normalized.drop('Y house price of unit area', axis=1).values
-y = ucl_data_normalized['Y house price of unit area'].values
-
-num_input_features = X.shape[1]
-print(f"Number of input features: {num_input_features}")
-print(f"Shape of target variable y: {y.shape} (Expected: (n_samples,) for regression)")
+X = data.drop('z', axis=1).values
+y = data['z'].values
 
 
 # Neural Network class
@@ -145,9 +136,8 @@ class MyNeuralNetwork:
         Returns:
         - mape: float, the MAPE value as a percentage.
         """
-        actual, predicted = np.array(actual), np.array(predicted)
-        non_zero = np.where(actual != 0, actual, np.finfo(float).eps)  #to avoid division by zero
-        return 100 * np.mean(np.abs((actual - predicted) / non_zero))
+        mask = actual != 0
+        return np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100
 
 
   def fit(self, input_data, target_data, total_epochs, batch_size=32, decay_rate=0.1):
