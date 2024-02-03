@@ -137,8 +137,13 @@ class MyNeuralNetwork:
         Returns:
         - mape: float, the MAPE value as a percentage.
         """
-        mask = actual != 0
-        return np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100
+        actual, predicted = np.array(actual), np.array(predicted)
+        non_zero = np.where(actual != 0, actual, np.finfo(float).eps)  #to avoid division by zero
+        return 100 * np.mean(np.abs((actual - predicted) / non_zero))
+
+
+        mask = y_true != 0
+        return np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100
 
   def fit(self, input_data, target_data, total_epochs, batch_size=32, decay_rate=0.1):
     # Split data into training and test parts
@@ -234,7 +239,7 @@ class MyNeuralNetwork:
 
 
 # Define neural network parameters with two hidden layers
-layers = [7, 10, 5, 1]  # Example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
+layers = [7, 10, 5, 1]    # Example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
 learning_rate = 0.01
 momentum = 0.9
 activation = 'sigmoid'
@@ -282,20 +287,20 @@ plt.tight_layout()
 plt.show()
 
 
-# Scatter plot with diagonal line and separate colors for predicted and actual values
+# scatter plot with diagonal line and separate colors for predicted and actual values
 predictions = nn.predict(X)
 plt.figure(figsize=(12, 7))
 
-# Predictions vs Actual Values
+# predictions vs Actual Values
 plt.scatter(y, predictions, color='darkorange', label='Predicted Values', alpha=0.6, edgecolors='w', s=50)
 plt.scatter(y, y, color='lightgreen', label='Actual Values', alpha=0.6, edgecolors='w', s=50)
 
-# Line of Identity (y=x line to show where predicted = actual)
+# line of Identity (y=x line to show where predicted = actual)
 line_start = min(y.min(), predictions.min())
 line_end = max(y.max(), predictions.max())
 plt.plot([line_start, line_end], [line_start, line_end], 'k--', label='Ideal Prediction')
 
-# Labels and Title
+# labels and title
 plt.xlabel('Actual Values')
 plt.ylabel('Predicted Values')
 plt.title('Scatter Plot of Predicted vs Actual Values')

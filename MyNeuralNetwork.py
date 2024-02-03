@@ -75,6 +75,7 @@ class MyNeuralNetwork:
     self.activation = activation        # name of the activation function
     self.validation_percentage = validation_percentage  # validation set percentage
     self.loss_epochs = []               # loss per epoch for tracking
+    self.fact = []
 
   def activation_function(self, x):
         if self.activation == 'sigmoid':
@@ -108,13 +109,13 @@ class MyNeuralNetwork:
             self.xi[layer] = self.activation_function(net_input)
 
   def propagate_backward(self, target):
-    # Calculate delta for the output layer
+    # calculate delta for the output layer
     self.delta[-1] = (self.xi[-1] - target) * self.activation_derivative(self.xi[-1])
 
-    # Propagate the delta backward through the network
+    # propagate the delta backward through the network
     for layer in reversed(range(1, self.L - 1)):
       
-        # This line is causing the error, so we inspect the shapes right before it's executed
+        # this line is causing the error, so we inspect the shapes right before it's executed
         self.delta[layer] = np.dot(self.w[layer].T, self.delta[layer + 1]) * self.activation_derivative(self.xi[layer])
 
 
@@ -151,10 +152,10 @@ class MyNeuralNetwork:
 
 
   def fit(self, input_data, target_data, total_epochs, batch_size=32, decay_rate=0.1):
-    # Split data into training and test parts
+    # split data into training and test parts
     train_inputs, test_inputs, train_targets, test_targets = train_test_split(input_data, target_data, test_size=self.validation_percentage, shuffle=True, random_state=42)
     
-    # Normalize the input features
+    # normalize the input features
     feature_scaler = StandardScaler()
     train_inputs = feature_scaler.fit_transform(train_inputs)
     test_inputs = feature_scaler.transform(test_inputs)
@@ -162,19 +163,19 @@ class MyNeuralNetwork:
     epoch_losses = []
 
     for epoch_idx in range(total_epochs):
-        # Iterate over batches
+        # iterate over batches
         for start_idx in np.arange(0, len(train_inputs), batch_size):
             selected_idxs = np.random.randint(0, len(train_inputs), size=batch_size)
             batch_inputs = train_inputs[selected_idxs]
             batch_targets = train_targets[selected_idxs]
 
-            # Training on each batch
+            # training on each batch
             for input_sample, target_sample in zip(batch_inputs, batch_targets):
                 self.propagate_forward(input_sample)
                 self.propagate_backward(target_sample)
                 self.adjust_weights()
 
-            # Error and MAPE calculation after processing the batch
+            # error and MAPE calculation after processing the batch
             predictions_train = self.predict(train_inputs)
             error_train = np.mean(np.square(predictions_train - train_targets))
             mape_train = self.mape(train_targets, predictions_train)
@@ -185,14 +186,14 @@ class MyNeuralNetwork:
 
             epoch_losses.append([error_train, error_test, mape_train, mape_test])
 
-            # Periodic logging
+            # periodic logging
             if (epoch_idx + 1) % 10 == 0:
                 print(f"Epoch {epoch_idx + 1}/{total_epochs} - Train Error: {error_train}, Test Error: {error_test}, Train MAPE: {mape_train}, Test MAPE: {mape_test}")
 
-        # Adjust the learning rate based on the decay
+        # adjust the learning rate based on the decay
         self.learning_rate *= (1 / (1 + decay_rate * epoch_idx))
 
-    # Final performance metrics
+    # final performance metrics
     mape_final_train = self.mape(train_targets, self.predict(train_inputs))
     mape_final_test = self.mape(test_targets, self.predict(test_inputs))
     print(f"Final Train MAPE: {mape_final_train}, Final Test MAPE: {mape_final_test}")
@@ -216,7 +217,6 @@ class MyNeuralNetwork:
         for i in range(n_samples):
             # forward pass to get the prediction for the i-th sample
             self.propagate_forward(X[i])
-            # assuming the output is the activation of the last layer
             predictions[i] = self.xi[-1]
 
         return predictions
@@ -243,18 +243,18 @@ class MyNeuralNetwork:
 
 
 
-# Define neural network parameters with two hidden layers
-layers = [6, 10, 5, 1]  # Example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
-learning_rate = 0.01
+# define neural network parameters with two hidden layers
+layers = [6, 12, 6, 1]  # example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
+learning_rate = 0.1
 momentum = 0.9
 activation = 'sigmoid'
 validation_percentage = 0.2
-epochs = 100
+epochs = 200
 
 print(f"Final check on network architecture (layers): {layers}")
 assert layers[-1] == 1, "Output layer should have 1 neuron for regression."
 
-# Create and train the neural network
+# create and train the neural network
 nn = MyNeuralNetwork(layers, learning_rate, momentum, activation, validation_percentage)
 loss_history = nn.fit(X, y, epochs)
 
@@ -292,20 +292,20 @@ plt.tight_layout()
 plt.show()
 
 
-# Scatter plot with diagonal line and separate colors for predicted and actual values
+# scatter plot with diagonal line and separate colors for predicted and actual values
 predictions = nn.predict(X)
 plt.figure(figsize=(12, 7))
 
-# Predictions vs Actual Values
+# predictions vs Actual Values
 plt.scatter(y, predictions, color='darkorange', label='Predicted Values', alpha=0.6, edgecolors='w', s=50)
 plt.scatter(y, y, color='lightgreen', label='Actual Values', alpha=0.6, edgecolors='w', s=50)
 
-# Line of Identity (y=x line to show where predicted = actual)
+# line of Identity (y=x line to show where predicted = actual)
 line_start = min(y.min(), predictions.min())
 line_end = max(y.max(), predictions.max())
 plt.plot([line_start, line_end], [line_start, line_end], 'k--', label='Ideal Prediction')
 
-# Labels and Title
+# labels and Title
 plt.xlabel('Actual Values')
 plt.ylabel('Predicted Values')
 plt.title('Scatter Plot of Predicted vs Actual Values')
