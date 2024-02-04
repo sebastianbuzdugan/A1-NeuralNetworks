@@ -9,7 +9,7 @@ import pandas as pd
 ucl_data_path = './Normalization/UCI_Real_Estate_normalized.csv'
 ucl_data = pd.read_csv(ucl_data_path)
 
-# Drop the 'No' column as it's just an identifier
+# drop the 'No' column as it's just an identifier
 ucl_data = ucl_data.drop('No', axis=1)
 
 
@@ -237,14 +237,8 @@ class MyNeuralNetwork:
 
 
 
-# Example usage
-# nn = MyNeuralNetwork(layers=[...], learning_rate=0.01, momentum=0.9, activation='relu')
-
-
-
-
 # define neural network parameters with two hidden layers
-layers = [6, 12, 6, 1]  # example: 6 input features, two hidden layers with 10 and 5 neurons, and 1 output neuron
+layers = [6, 12, 6, 1]  
 learning_rate = 0.1
 momentum = 0.9
 activation = 'sigmoid'
